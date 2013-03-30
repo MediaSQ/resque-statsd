@@ -5,7 +5,7 @@ require 'resque/plugins/statsd'
 require 'resque'
 
 # Set up the client
-$resque_statsd = Statsd.new(ENV['STATSD_HOST'], ENV['STATSD_PORT'])
+$resque_statsd = Statsd.new(ENV['STATSD_HOST'], ENV['STATSD_PORT'].to_i)
 $resque_statsd.namespace="#{ENV['APP_NAME']}_#{ENV['RAILS_ENV']}.resque"
 
 module Resque

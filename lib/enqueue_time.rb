@@ -36,8 +36,8 @@ module Resque
       begin
         if payload['enqueued_at']
            queue_time = (Time.now - DateTime.parse(payload['enqueued_at'])) * 1000.0
-           StatsdHelper.statsd.timing("queues.#{queue}.queue_time", queue_time)
-           StatsdHelper.statsd.timing("total.queue_time", queue_time)
+           Resqued.statsd.timing("queues.#{queue}.queue_time", queue_time)
+           Resqued.statsd.timing("total.queue_time", queue_time)
          end
       rescue Exception => e
         Rails.logger.error "Error in Resque::EnqueueTime in recording queue_time in statsd: #{e.message}"

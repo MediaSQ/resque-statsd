@@ -4,7 +4,7 @@ require 'statsd'
 require 'resque/plugins/statsd'
 require 'resque'
 
-class StatsdHelper
+class Resqued
   def self.graphite_host
     return @graphite_host || ENV['GRAPHITE_HOST'] || 'localhost'
   end
@@ -37,27 +37,6 @@ class StatsdHelper
 end
 
 module Resque
-  class << self
-    alias_method :push_without_timestamps, :push
-    def push(queue, item)
-      if item.respond_to?(:[]=)
-        item[:created_at] = Time.now.to_f
-      end
-      push_without_timestamps queue, item
-    end
-  end
-
-  class Job
-    def initialize(queue, payload)
-      @queue = queue
-      @payload = payload
-      if StatsdHelper.statsd && @payload["created_at"]
-        StatsdHelper.statsd.timing "#{@queue}.queue_time", (1000 * (Time.now.to_f - @payload["created_at"].to_i)).round
-        StatsdHelper.statsd.timing "#{payload_class}.queue_time", (1000 * (Time.now.to_f - @payload["created_at"].to_i)).round
-      end
-    end
-  end
-
   module Plugins
     module Statsd
       VERSION = "0.1.0"

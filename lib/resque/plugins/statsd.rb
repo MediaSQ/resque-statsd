@@ -2,9 +2,9 @@ module Resque
   module Plugins
     module Statsd
       def after_enqueue_statsd(*args)
-        StatsdHelper.statsd.increment("queues.#{@queue}.enqueued")
-        StatsdHelper.statsd.increment("jobs.#{self.name}.enqueued")
-        StatsdHelper.statsd.increment("total.enqueued")
+        Resqued.statsd.increment("queues.#{@queue}.enqueued")
+        Resqued.statsd.increment("jobs.#{self.name}.enqueued")
+        Resqued.statsd.increment("total.enqueued")
       rescue SocketError => se
         # Common cause of this is failure of getaddrinfo (I.E. can't route to
         # statsd server or some such).  This may happen in development, when
@@ -15,9 +15,9 @@ module Resque
       end
 
       def before_perform_statsd(*args)
-        StatsdHelper.statsd.increment("queues.#{@queue}.started")
-        StatsdHelper.statsd.increment("jobs.#{self.name}.started")
-        StatsdHelper.statsd.increment("total.started")
+        Resqued.statsd.increment("queues.#{@queue}.started")
+        Resqued.statsd.increment("jobs.#{self.name}.started")
+        Resqued.statsd.increment("total.started")
       rescue SocketError => se
         # Common cause of this is failure of getaddrinfo (I.E. can't route to
         # statsd server or some such).  This may happen in development, when
@@ -28,9 +28,9 @@ module Resque
       end
 
       def after_perform_statsd(*args)
-        StatsdHelper.statsd.increment("queues.#{@queue}.finished")
-        StatsdHelper.statsd.increment("jobs.#{self.name}.finished")
-        StatsdHelper.statsd.increment("total.finished")
+        Resqued.statsd.increment("queues.#{@queue}.finished")
+        Resqued.statsd.increment("jobs.#{self.name}.finished")
+        Resqued.statsd.increment("total.finished")
       rescue SocketError => se
         # Common cause of this is failure of getaddrinfo (I.E. can't route to
         # statsd server or some such).  This may happen in development, when
@@ -41,9 +41,9 @@ module Resque
       end
 
       def on_failure_statsd(*args)
-        StatsdHelper.statsd.increment("queues.#{@queue}.failed")
-        StatsdHelper.statsd.increment("jobs.#{self.name}.failed")
-        StatsdHelper.statsd.increment("total.failed")
+        Resqued.statsd.increment("queues.#{@queue}.failed")
+        Resqued.statsd.increment("jobs.#{self.name}.failed")
+        Resqued.statsd.increment("total.failed")
       rescue SocketError => se
         # Common cause of this is failure of getaddrinfo (I.E. can't route to
         # statsd server or some such).  This may happen in development, when
@@ -58,8 +58,8 @@ module Resque
         # from our attempts to talk to statsd.
         failure_is_in_app = true
         timing = Benchmark.measure { yield }
-        StatsdHelper.statsd.time("queues.#{@queue}.processed", (timing.real * 1000.0).round) do
-          StatsdHelper.statsd.time("jobs.#{self.name}.processed", (timing.real * 1000.0).round) do
+        Resqued.statsd.time("queues.#{@queue}.processed", (timing.real * 1000.0).round) do
+          Resqued.statsd.time("jobs.#{self.name}.processed", (timing.real * 1000.0).round) do
             yield
             failure_is_in_app = false
           end

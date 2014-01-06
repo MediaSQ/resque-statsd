@@ -40,9 +40,13 @@ module Resque
         # impair the ability of an app to actually operate.
       end
 
-      def on_failure_statsd(*args)
+      def on_failure_statsd(exc, *args)
         Resqued.statsd.increment("queues.#{@queue}.failed")
         Resqued.statsd.increment("jobs.#{self.name}.failed")
+        Resqued.statsd.increment("exceptions.#{self.name}.failed")
+        Resqued.statsd.increment("queues.#{@queue}.failed.#{exc.class}")
+        Resqued.statsd.increment("jobs.#{self.name}.failed.#{exc.class}")
+        Resqued.statsd.increment("exceptions.#{self.name}.failed.#{exc.class}")
         Resqued.statsd.increment("total.failed")
       rescue SocketError => se
         # Common cause of this is failure of getaddrinfo (I.E. can't route to

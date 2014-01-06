@@ -26,6 +26,18 @@ class Resqued
     @namespace = val
   end
 
+  def self.logger
+    @logger ||= if defined?(Rails)
+                  Rails.logger
+                else
+                  require 'logger'
+                  Logger.new($stderr)
+                end
+  end
+  def self.logger=(val)
+    @logger = val
+  end
+
   # Set up the client lazily, to minimize order-of-operations headaches.
   def self.statsd
     if(@stats.nil?)

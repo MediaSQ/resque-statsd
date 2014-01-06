@@ -17,7 +17,7 @@ module Resque
               item[:enqueued_at] = Time.now
             end
           rescue Exception => e
-            Rails.logger.error "Error in Resque::EnqueueTime: #{e.message}"
+            Resqued.logger.error "Error in Resque::EnqueueTime: #{e.message}"
           end
           push_without_enqueued_at queue, item
         end
@@ -40,7 +40,7 @@ module Resque
            Resqued.statsd.timing("total.queue_time", queue_time)
          end
       rescue Exception => e
-        Rails.logger.error "Error in Resque::EnqueueTime in recording queue_time in statsd: #{e.message}"
+        Resqued.logger.error "Error in Resque::EnqueueTime in recording queue_time in statsd: #{e.message}"
       end
       perform_without_enqueue_time
     end

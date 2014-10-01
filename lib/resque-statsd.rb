@@ -8,6 +8,7 @@ class Resqued
   def self.graphite_host
     return @graphite_host || ENV['GRAPHITE_HOST'] || 'localhost'
   end
+
   def self.graphite_host=(val)
     @graphite_host = val
   end
@@ -15,6 +16,7 @@ class Resqued
   def self.graphite_port
     return @graphite_port || ENV['GRAPHITE_PORT'] || 8125
   end
+
   def self.graphite_port=(val)
     @graphite_port = val
   end
@@ -22,6 +24,7 @@ class Resqued
   def self.namespace
     return @namespace || ENV['GRAPHITE_NAMESPACE'] || 'resque'
   end
+
   def self.namespace=(val)
     @namespace = val
   end
@@ -34,17 +37,19 @@ class Resqued
                   Logger.new($stderr)
                 end
   end
+
   def self.logger=(val)
     @logger = val
   end
 
   # Set up the client lazily, to minimize order-of-operations headaches.
   def self.statsd
-    if(@stats.nil?)
-      @statsd = Statsd.new(graphite_host, graphite_port)
-      @statsd.namespace = namespace
-    end
-    return @statsd
+    @statsd || initialize_statsd
+  end
+
+  def self.initialize_statsd
+    @statsd = Statsd.new(graphite_host, graphite_port)
+    @statsd.namespace = namespace
   end
 end
 

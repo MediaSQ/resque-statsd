@@ -2,17 +2,9 @@
 
 Resque Statsd is a Resque plugin that will collect and send data samples from your Resque Jobs.  It samples 4 statistics for any Job for which the plugin extends, enqueue count, completion count, failure count, and the time to process.  It will monitor for each specific job, in addition to the totals for all jobs (not including timing stats)
 
-## CURRENT STATUS
-
-This is a fork of jamster's original gem designed to make it easier to run with Bundler and Rails 3.0.
-
-It also combines changes from https://github.com/CloudabilityArchive/resque-statsd and https://github.com/noahhl/resque-statsd
-
 ## Final Outcome
 
 ![Graph of a Job](https://img.skitch.com/20110323-ghsnyg8nhs6hta8etea63q6965.jpg "Report Running Job Stats")
-
-
 
 ## Usage
 
@@ -20,7 +12,7 @@ It also combines changes from https://github.com/CloudabilityArchive/resque-stat
 
 Add this to your Gemfile:
 
-    gem "resque-statsd", :git => "https://github.com/ninetwentyfour/resque-statsd.git"
+    gem "resque-statsd", :git => "https://github.com/sergio-alvarez/resque-statsd.git"
 
 ### Rails Setup
 
@@ -29,12 +21,6 @@ in an initializer, set up the Statsd
     touch  config/initializers/resque_statsd.rb
 
 in file add code
-
-    require 'enqueue_time'
-
-    module Resque
-      include Resque::EnqueueTime
-    end
 
     Resqued.graphite_host = 'graphite.YOUR_HOST.com'
     Resqued.graphite_port = YOUR_PORT

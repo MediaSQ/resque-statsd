@@ -44,12 +44,13 @@ class Resqued
 
   # Set up the client lazily, to minimize order-of-operations headaches.
   def self.statsd
-    @statsd || initialize_statsd
+    @statsd ||= initialize_statsd
   end
 
   def self.initialize_statsd
-    @statsd = Statsd.new(graphite_host, graphite_port)
-    @statsd.namespace = namespace
+    Statsd.new(graphite_host, graphite_port).tap do |statsd|
+      statsd.namespace = namespace
+    end
   end
 end
 

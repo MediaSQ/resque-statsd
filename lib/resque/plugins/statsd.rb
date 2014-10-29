@@ -11,19 +11,19 @@ module Resque
       # impair the ability of an app to actually operate.
 
       def after_enqueue_statsd(*args)
-        Resqued.statsd.gauge("queues.#{@queue}.enqueued_elements", Resque.size(@queue)) # Elements by instant and queue
+        send_number_of_elements_per_queue
       rescue SocketError => se
         # Check note above (DRY)
       end
 
       def before_perform_statsd(*args)
-        # TODO Send "element's time on queue"
+        send_number_of_elements_per_queue
       rescue SocketError => se
         # Check note above (DRY)
       end
 
       def after_perform_statsd(*args)
-        # We're not measuring anything here
+        send_number_of_elements_per_queue
       rescue SocketError => se
         # Check note above (DRY)
       end
@@ -51,6 +51,10 @@ module Resque
 
       def statsd_name
         @statsd_name ||= self.name.gsub('::', '-')
+      end
+
+      def send_number_of_elements_per_queue
+        Resqued.statsd.gauge("queues.#{@queue}.enqueued_elements", Resque.size(@queue)) # Elements by instant and queue
       end
     end
   end

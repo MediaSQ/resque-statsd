@@ -1,79 +1,51 @@
 module Resque
   module Plugins
     module Statsd
+
+      # Note on Error handling:
+      # Common cause of SocketErrors is failure of getaddrinfo (I.E. can't route to
+      # statsd server or some such).  This may happen in development, when
+      # your net connection isn't in a good way, for example.
+      #
+      # Ignoring all of them because we don't want unreachability of statsd to
+      # impair the ability of an app to actually operate.
+
       def after_enqueue_statsd(*args)
-        Resqued.statsd.increment("queues.#{@queue}.enqueued")
-        Resqued.statsd.increment("jobs.#{statsd_name}.enqueued")
-        Resqued.statsd.increment("total.enqueued")
+        # TODO Why gauge is not supported @ jamster-statsd? :S
+        Resqued.statsd.gauge("queues.#{@queue}.enqueued_elements", Resque.size(@queue)) # Elements by instant and queue
       rescue SocketError => se
-        # Common cause of this is failure of getaddrinfo (I.E. can't route to
-        # statsd server or some such).  This may happen in development, when
-        # your net connection isn't in a good way, for example.
-        #
-        # Ignoring this because we don't want unreachability of statsd to
-        # impair the ability of an app to actually operate.
+        # Check note above (DRY)
       end
 
       def before_perform_statsd(*args)
-        Resqued.statsd.increment("queues.#{@queue}.started")
-        Resqued.statsd.increment("jobs.#{statsd_name}.started")
-        Resqued.statsd.increment("total.started")
+        # TODO Send "element's time on queue"
       rescue SocketError => se
-        # Common cause of this is failure of getaddrinfo (I.E. can't route to
-        # statsd server or some such).  This may happen in development, when
-        # your net connection isn't in a good way, for example.
-        #
-        # Ignoring this because we don't want unreachability of statsd to
-        # impair the ability of an app to actually operate.
+        # Check note above (DRY)
       end
 
       def after_perform_statsd(*args)
-        Resqued.statsd.increment("queues.#{@queue}.finished")
-        Resqued.statsd.increment("jobs.#{statsd_name}.finished")
-        Resqued.statsd.increment("total.finished")
+        # We're not measuring anything here
       rescue SocketError => se
-        # Common cause of this is failure of getaddrinfo (I.E. can't route to
-        # statsd server or some such).  This may happen in development, when
-        # your net connection isn't in a good way, for example.
-        #
-        # Ignoring this because we don't want unreachability of statsd to
-        # impair the ability of an app to actually operate.
+        # Check note above (DRY)
       end
 
       def on_failure_statsd(exc, *args)
-        Resqued.statsd.increment("queues.#{@queue}.failed")
-        Resqued.statsd.increment("jobs.#{statsd_name}.failed")
-        Resqued.statsd.increment("total.failed")
-
-        exc_name = exc.class.name.gsub('::', '-')
-        Resqued.statsd.increment("queues.#{@queue}.failed.#{exc_name}")
-        Resqued.statsd.increment("jobs.#{statsd_name}.failed.#{exc_name}")
-        Resqued.statsd.increment("total.failed.#{exc_name}")
+        # We're not measuring anything here
       rescue SocketError => se
-        # Common cause of this is failure of getaddrinfo (I.E. can't route to
-        # statsd server or some such).  This may happen in development, when
-        # your net connection isn't in a good way, for example.
-        #
-        # Ignoring this because we don't want unreachability of statsd to
-        # impair the ability of an app to actually operate.
+        # Check note above (DRY)
       end
 
-      def around_perform_statsd(*args)
+      def around_perform_statsd(exc, *args)
         retval = nil
         timing = Benchmark.measure do
           retval = yield
         end
 
         begin
-          Resqued.statsd.timing("queues.#{@queue}.processed", (timing.real * 1000.0).round)
-          Resqued.statsd.timing("jobs.#{statsd_name}.processed", (timing.real * 1000.0).round)
+          exc_name = exc.class.name.gsub('::', '-') # TODO: exc vs statsd_name? We want job's name
+          Resqued.statsd.timing("jobs.#{statsd_name}.processed", (timing.real * 1000.0).round) # Perform time by job
         rescue SocketError => se
-          # Common cause of this is failure of getaddrinfo (I.E. can't route to
-          # statsd server or some such).  This may happen in development, when
-          # your net connection isn't in a good way, for example.
-          #
-          # Ignoring this because we don't want unreachability of statsd to
-          # impair the ability of an app to actually operate.
+          # Check note above (DRY)
         end
 
         retval

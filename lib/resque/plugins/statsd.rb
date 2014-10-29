@@ -11,7 +11,6 @@ module Resque
       # impair the ability of an app to actually operate.
 
       def after_enqueue_statsd(*args)
-        # TODO Why gauge is not supported @ jamster-statsd? :S
         Resqued.statsd.gauge("queues.#{@queue}.enqueued_elements", Resque.size(@queue)) # Elements by instant and queue
       rescue SocketError => se
         # Check note above (DRY)
@@ -42,7 +41,6 @@ module Resque
         end
 
         begin
-          exc_name = exc.class.name.gsub('::', '-') # TODO: exc vs statsd_name? We want job's name
           Resqued.statsd.timing("jobs.#{statsd_name}.processed", (timing.real * 1000.0).round) # Perform time by job
         rescue SocketError => se
           # Check note above (DRY)

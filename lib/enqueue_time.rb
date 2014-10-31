@@ -9,6 +9,7 @@ module Resque
     def self.included(base)
       base.class_eval do
         alias_method :push_without_enqueued_at, :push
+
         # Wrapper for the original Resque push method, which adds
         # enqueued_at time
         def push(queue, item)
@@ -34,10 +35,10 @@ module Resque
 
     def perform
       begin
-        if payload['enqueued_at']
-           queue_time = (Time.now - DateTime.parse(payload['enqueued_at'])) * 1000.0
-           Resqued.statsd.timing("queues.#{queue}.queue_time", queue_time)
-         end
+        if payload["enqueued_at"]
+          queue_time = (Time.now - DateTime.parse(payload["enqueued_at"])) * 1000.0
+          Resqued.statsd.timing("queues.#{queue}.queue_time", queue_time)
+        end
       rescue Exception => e
         Resqued.logger.error "Error in Resque::EnqueueTime in recording queue_time in statsd: #{e.message}"
       end

@@ -28,13 +28,13 @@ module Resque
         # Check note above (DRY)
       end
 
-      def on_failure_statsd(exc, *args)
+      def on_failure_statsd(*args)
         # We're not measuring anything here
       rescue SocketError => se
         # Check note above (DRY)
       end
 
-      def around_perform_statsd(exc, *args)
+      def around_perform_statsd(*args)
         retval = nil
         timing = Benchmark.measure do
           retval = yield

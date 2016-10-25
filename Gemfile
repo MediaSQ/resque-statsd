@@ -1,5 +1,10 @@
 source 'https://rubygems.org'
 
-gem 'jeweler', '~> 1.8'
+if RUBY_VERSION == '1.8.7'
+  gem 'json'
+  gem 'ruby-debug'
+else
+  gem 'pry'
+end
 
 gemspec

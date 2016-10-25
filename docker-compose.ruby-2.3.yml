@@ -1,0 +1,3 @@
+main:
+  build: .
+  dockerfile: Dockerfile.ruby-2.3

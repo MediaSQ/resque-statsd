@@ -11,6 +11,9 @@ doc
 # bundler
 .bundle
 
+# idea
+.idea
+
 # jeweler generated
 pkg
 
